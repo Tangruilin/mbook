@@ -11,5 +11,12 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+#The file for Goland
+.idea
+
+#the file for vscode
+.vscode
+*.workspace
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
