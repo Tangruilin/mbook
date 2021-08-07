@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    {{template "widgets/head.html" .}}
+    <style>
+        h3 {
+            font-weight: normal;
+            margin-bottom: 20px;
+            font-size: 20px;
+            margin-top: 15px;
+        }
+
+        .bind-options label {
+            font-weight: normal;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="manual-container">
+<header class="navbar navbar-static-top smart-nav navbar-fixed-top manual-header" role="banner">
+    <div class="container">
+    </div>
+</header>
+<div class="container manual-body">
+    <div class="row login">
+        <div class="col-xs-12">
+            <div class="login-body">
+                <form action="/doregist" class="ajax-form" data-url="/" method="post" role="form">
+                    <h3>{{if true}}用户注册{{else}}完善资料{{end}} <small class="pull-right text-muted">{{.Tips}}</small></h3>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon">&nbsp;用 户 名</div>
+                            <input autocomplete="off" class="form-control" id="account" name="account"
+                                   placeholder="由英文字母数字组成，限3-50个字符" type="text" value="{{.Username}}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon">登录密码</div>
+                            <input autocomplete="off" class="form-control" id="password1" name="password1"
+                                   placeholder="密码必须在6-50个字符之间" type="password">
+                        </div>
+                    </div>
+                    <div class="form-group has-hidden">
+                        <div class="input-group">
+                            <div class="input-group-addon">确认密码</div>
+                            <input autocomplete="off" class="form-control" id="password2" name="password2"
+                                   placeholder="密码必须在6-50个字符之间" type="password">
+                        </div>
+                    </div>
+                    <div class="form-group has-hidden">
+                        <div class="input-group">
+                            <div class="input-group-addon">用户昵称</div>
+                            <input autocomplete="off" class="form-control" id="nickname" name="nickname" type="text"
+                                   value="{{.Nickname}}">
+                        </div>
+                    </div>
+                    <div class="form-group has-hidden">
+                        <div class="input-group">
+                            <div class="input-group-addon">用户邮箱</div>
+                            <input autocomplete="off" class="form-control" id="email" name="email" type="email"
+                                   value="{{.Email}}">
+                        </div>
+                    </div>
+                    <input name="avatar" type="hidden" value="{{.Avatar}}">
+                    <input name="id" type="hidden" value="{{.Id}}">
+                    <input name="oauth" type="hidden" value="email">
+
+                    <div class="form-group mgt-15px">
+                        <button class="btn btn-success btn-block" data-has="绑定已有账号" data-not="注册新账号" type="submit">
+                            注册新账号
+                        </button>
+                    </div>
+
+                    <div class="help-block">
+                        {{if false}}使用以下方式一键登录{{end}}
+                        <span class="pull-right"> 已有账号？ <a class="tooltips text-primary" href="/login"
+                                                           title="立即登录">立即登录</a></span>
+                    </div>
+                    <div class="form-group login-by-third">
+                        {{if $.LoginQQ}}
+                        <a class="tooltips"
+                           href="https://graph.qq.com/oauth2.0/authorize?client_id={{.QQClientId}}&redirect_uri={{.QQCallback}}&response_type=code&state=mbook.cn{{.RandomStr}}"
+                           rel="nofollow" title="使用QQ一键登录">
+                            <img alt="QQ" src="/static/images/qq.png">
+                        </a>
+                        {{end}}
+                        {{if $.LoginGitHub}}
+                        <a class="tooltips"
+                           href="https://github.com/login/oauth/authorize?client_id={{.GithubClientId}}&redirect_uri={{.GithubCallback}}"
+                           rel="nofollow" title="使用GitHub一键登录">
+                            <img alt="GitHub" src="/static/images/github.png">
+                        </a>
+                        {{end}}
+                        {{if $.LoginGitee}}
+                        <a class="tooltips"
+                           href="https://gitee.com/oauth/authorize?client_id={{.GiteeClientId}}&redirect_uri={{.GiteeCallback}}&response_type=code"
+                           rel="nofollow" title="使用码云(Gitee)一键登录">
+                            <img alt="码云(Gitee)" src="/static/images/gitee.png">
+                        </a>
+                        {{end}}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    <div class="clearfix"></div>
+</div>
+{{/*
+<script src="/static/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
+*/}}
+<script src="/static/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
+{{/*
+<script src="/static/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+*/}}
+<script src="/static/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="{{$.StaticDomain}}/static/js/toast.script.js" type="text/javascript"></script>
+<script src="/static/js/main.js?version={{$.Version}}" type="text/javascript"></script>
+{{/*js直接写在这里了*/}}
+<script>$(function () {
+    $(".bind-options label").click(function () {
+        var options = $(this);
+        $.each(options, function () {
+            if ($(this).find("input").prop("checked") == true) {
+                var btnSubmit = $("form [type=submit]");
+                if ($(this).find("input").val() == 1) {//绑定已有账号
+                    $(".has-hidden").hide();
+                    btnSubmit.text(btnSubmit.attr("data-has"));
+                } else {//注册新账号
+                    $(".has-hidden").show();
+                    btnSubmit.text(btnSubmit.attr("data-not"));
+                }
+            }
+        })
+    })
+})</script>
+</body>
+</html>

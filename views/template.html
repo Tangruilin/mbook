@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+
+    <title>用户中心 </title>
+
+    <!-- Bootstrap -->
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/static/css/main.css?version={{$.Version}}" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="/static/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="manual-reader">
+    {{template "widgets/header.html" .}}
+    <div class="container manual-body">
+        <div class="row">
+            <div class="page-left">
+                <ul class="menu">
+                    <li class="active"><a SettingController.Indexhref="{{urlfor ""}}" class="item"><i aria-hidden="true"
+                                                                                                      class="fa fa-sitemap"></i>
+                        基本信息</a> </li>
+                    <li><a SettingController.Passwordhref="{{urlfor ""}}" class="item"><i aria-hidden="true"
+                                                                                          class="fa fa-user"></i>
+                        修改密码</a> </li>
+                </ul>
+            </div>
+            <div class="page-right">
+                <div class="m-box">
+                    <div class="box-head">
+                        <strong class="box-title">基本信息</strong>
+                    </div>
+                </div>
+                <div class="box-body" style="padding-right: 200px;">
+                    <div class="form-left">
+                        <form id="memberInfoForm" method="post" role="form">
+                            <div class="form-group">
+                                <label>用户名</label>
+                                <input class="form-control disabled" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="user-nickname">昵称</label>
+                                <input class="form-control" id="user-nickname" max="20" name="userNickname"
+                                       placeholder="昵称" type="text" value="admin">
+                            </div>
+                            <div class="form-group">
+                                <label for="user-email">邮箱<strong class="text-danger">*</strong></label>
+                                <input class="form-control" id="user-email" max="100" name="userEmail" placeholder="邮箱"
+                                       type="email" value="longfei6671@163.com">
+                            </div>
+                            <div class="form-group">
+                                <label>手机号</label>
+                                <input class="form-control" id="user-phone" maxlength="20" name="userPhone"
+                                       placeholder="手机号码" title="手机号码" type="text" value="">
+                            </div>
+                            <div class="form-group">
+                                <label class="description">描述</label>
+                                <textarea class="form-control" id="description" maxlength="500" name="description"
+                                          rows="3" title="描述"></textarea>
+                                <p style="color: #999;font-size: 12px;">描述不能超过500字</p>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success" data-loading-text="保存中..." type="submit">保存修改</button>
+                                <span class="error-message" id="form-error-message"></span>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="form-right">
+                        <label>
+                            <a data-target="#upload-logo-panel" data-toggle="modal" href="javascript:;">
+                                <img alt="头像" class="img-circle" id="headimgurl"
+                                     onerror="this.src='https://wiki.iminho.me/static/images/middle.gif'"
+                                     src="/uploads/user/201612/58649aefa944e_58649aef.JPG"
+                                     style="max-width: 120px;max-height: 120px;">
+                            </a>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/jquery/1.12.4/jquery.min.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>

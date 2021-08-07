@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    {{template "widgets/head.html" .}}
+    <style>
+        .relate-bookname {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        h4 {
+            font-weight: normal;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body id="mbook-intro">
+{{template "widgets/header.html" .}}
+<div class="container">
+    <div class="row mbook-info">
+        <div class="col-xs-12">
+            <h1>{{.Book.BookName}}
+                {{if eq $.Member.MemberId $.Book.MemberId}}
+                <a class="tooltips" href="/api/{{.Book.Identify}}/edit/" title="编辑文档"> &nbsp;<small><i
+                        class="fa fa-edit"></i></small> </a>
+                <a class="tooltips" href="/book/{{.Book.Identify}}/setting" title="图书设置"> &nbsp;<small><i
+                        class="fa fa-cog"></i></small> </a>
+                {{end}}
+            </h1>
+        </div>
+        <div class="col-sm-3 col-xs-6">
+            <div class="{{if gt .Book.OrderIndex 0}}recommend-book{{end}}">
+                <img coversrc="{{showImg .Book.Cover ""}}" onerror="this.src='/static/images/book.png'"
+                class="img-responsive border-cover-img" alt="{{.Book.BookName}}">
+            </div>
+        </div>
+        <div class="col-sm-9 col-xs-6">
+            <ul class="none-listyle">
+                <!--<li class="mbook-score"><span>文档评分：</span>
+                    <i class="mbook-star star-{{.Book.Score}}"></i>
+                    {{.Book.ScoreFloat}}
+                    （<span class="text-muted">{{.Book.CntScore}} 个有效评分</span>）
+                </li>-->
+                <li><span>章节数量：</span>{{.Book.DocCount}}</li>
+                <li><span>阅读人次：</span>{{.Book.Vcnt}}</li>
+                <li><span>图书作者：</span><a class="text-primary" href="/user/{{(.Book.MemberId|getUsernameByUid)}}"
+                                         target="_blank">{{.Book.MemberId|getNicknameByUid}}</a></li>
+                <li class="hidden-xs">
+                    <div class="btn btn-group">
+                        {{range $index,$val:=.Menu}}
+                        {{if eq $index 0}}
+                        <a class="btn btn-success" href="/read/{{$.Book.Identify}}/{{.Identify}}" target="_blank"
+                           title="马上阅读"><i class="fa fa-book"></i> 阅读</a>
+                        {{end}}
+                        {{end}}
+                        <a class="btn btn-default ajax-star" href="/book/star/{{.Book.BookId}}" rel="nofollow">
+                            {{if eq (doesCollection $.Member.MemberId $.Book.BookId) true}}
+                            <i class="fa fa-heart"></i> <span style="color: #333;">已收藏</span>
+                            {{else}}
+                            <i class="fa fa-heart-o"></i> <span style="color: #333;">收藏</span>
+                            {{end}}
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-12 text-center visible-xs">
+            <div class="btn btn-group">
+                {{range $index,$val:=.Menu}}
+                {{if eq $index 0}}
+                <a class="btn btn-success" href="/read/{{$.Book.Identify}}/{{.Identify}}" target="_blank"
+                   title="马上阅读"><i class="fa fa-book"></i>阅读</a>
+                {{end}}
+                {{end}}
+                <a class="btn btn-default ajax-star" href="/book/star/{{.Book.BookId}}" rel="nofollow">
+                    {{if eq (doesCollection $.Member.MemberId $.Book.BookId) true}}
+                    <i class="fa fa-heart"></i> <span style="color: #333;">已收藏</span>
+                    {{else}}
+                    <i class="fa fa-heart-o"></i> <span style="color: #333;">收藏</span>
+                    {{end}}
+                </a>
+            </div>
+        </div>
+
+        <div class="col-xs-12 mgt-15px">
+            <ul class="none-listyle">
+                <li>
+                    <span>文档概述</span>
+                    <div style="text-indent: 2em;">
+                        {{.Book.Description}}
+                    </div>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 mbook-menu">
+            <ul class="nav nav-tabs">
+                <li .Tab eq {{if
+                "default"}}class="active"{{end}}><a href="/books/{{$.Book.Identify}}"><span class="hidden-xs">文档</span>目录</a></li>
+                <li .Tab eq {{if
+                "comment"}}class="active"{{end}}><a href="/books/{{$.Book.Identify}}?tab=comment"><span
+                    class="hidden-xs">文档</span>评论 (<span class="text-muted">{{$.Book.CntComment}}</span>)</a></li>
+            </ul>
+            <div class="help-block">
+                <ul class="none-listyle">
+                    {{if eq .Tab "comment"}}
+                    {{/*评论*/}}
+                    <li class="comments-form clearfix">
+                        <div class="score">
+                            {{if gt $.MyScore 0}}
+                            <span class="text-muted">我的评分: <i class="mbook-star star-{{$.MyScore}}"></i></span>
+                            {{else}}
+                            <span class="cursor-pointer" data-toggle="tooltip" data-url="/book/score/{{$.Book.BookId}}"
+                                  title="点击即可给当前文档打分">
+                                        <i class="fa fa-star-o" data-score="1" data-tips="很差"></i>
+                                        <i class="fa fa-star-o" data-score="2" data-tips="较差"></i>
+                                        <i class="fa fa-star-o" data-score="3" data-tips="还行"></i>
+                                        <i class="fa fa-star-o" data-score="4" data-tips="推荐"></i>
+                                        <i class="fa fa-star-o" data-score="5" data-tips="力荐"></i>
+                                    </span>
+                            <span class="text-muted"></span>
+                            {{end}}
+
+                        </div>
+                        <form action="/book/comment/{{$.Book.BookId}}" class="ajax-form" method="post">
+                            <div class="form-group">
+                                <textarea class="form-control" name="content"
+                                          placeholder="在这里，您可以给当前小编提意见和建议，以及对文档内容进行纠偏纠错提醒。" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <span class="pull-left text-muted">文明评论，理性发言</span>
+                                <input class="btn btn-success pull-right" type="submit" value="发表点评">
+                            </div>
+                        </form>
+                    </li>
+                    <li class="comments-list">
+                        <ul>
+                            {{range .Comments}}
+                            <li class="clearfix">
+                                <div class="col-xs-12">
+                                    <img avatarsrc="{{showImg .Avatar ""}}" class="img-thumbnail img-circle
+                                    img-responsive" alt="自由编程">
+                                    <span class="username">{{.Nickname}}</span>
+                                    <span>评分:<i class="mbook-star star-{{.Score}}"></i></span>
+                                    <span class="text-muted hidden-xs pull-right">{{.date .TimeCreate "Y-m-d H:i:s"}}</span>
+                                </div>
+                                <div class="col-xs-12 comments-content">{{.Content}}</div>
+                            </li>
+                            {{end}}
+
+                        </ul>
+                    </li>
+
+                    {{end}}
+                    {{if eq .Tab "default"}}
+                    {{range .Menu}}
+                    <li><a href="/read/{{$.Book.Identify}}/{{.Identify}}" target="_blank" title="{{.DocumentName}}">{{.DocumentName}}</a>
+                    </li>
+                    {{end}}
+                    {{end}}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {{if .RelateBooks}}
+    <div class="row mgt-15px">
+        <div class="col-xs-12 mgt-15px">
+            <h4 class="help-block"><i class="fa fa-th color-gray"></i> 相关书籍</h4>
+        </div>
+        {{range .RelateBooks}}
+        <div class="col-xs-6 col-sm-3 col-md-2 mgt-15px">
+            <dl class="manual-item-standard">
+                <dt>
+                    <a class="clearfix tooltips" href="/books/{{.Identify}}" target="_blank" title="{{.BookName}}">
+                        <img class="img-responsive border-cover-img" cover onerror="this.src='/static/images/book.png'"
+                             src="{{showImg .Cover ""}}" alt="{{.BookName}}">
+                    </a>
+                </dt>
+                <dd class="mgt-15px">
+                    <a class="name tooltips relate-bookname" data-original-title="{{.BookName}}"
+                       href="/books/{{.Identify}}" target="_blank" title="{{.BookName}}">{{.BookName}}{{.BookName}}{{.BookName}}</a>
+                </dd>
+            </dl>
+        </div>
+        {{end}}
+    </div>
+    {{end}}
+</div>
+{{template "widgets/footer.html" .}}
+<script src="{{$.StaticDomain}}/static/js/toast.script.js" type="text/javascript"></script>
+<script src="/static/js/main.js?version={{$.Version}}" type="text/javascript"></script>
+<script>
+    $(function () {
+        $("#mbook-intro .mbook-info img").click(function () {
+            location.href = $("#mbook-intro .mbook-info .none-listyle .btn-success").attr("href");
+        })
+    })
+</script>
+</html>

@@ -1,0 +1,11 @@
+#初始化配置文件, 暂时只是引入这个配置文件，但是不使用viper库进行解析，后续进行迭代升级，先将项目快速上线
+  Database：
+DBType: mysql
+Username: root
+Password: tangruilin123
+Host: 127.0.0.1:3306
+DBName: mbook
+Charset: utf8
+ParseTime: True
+MaxIdleConns: 10
+MaxOpenConns: 30

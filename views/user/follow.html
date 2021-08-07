@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    {{template "widgets/head.html" .}}
+</head>
+<body>
+<div class="manual-reader manual-container">
+    {{template "widgets/header.html" .}}
+    <div class="ucenter">
+        {{template "user/base.html" .}}
+
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <ul class="nav nav-tabs">
+                        <li $.Tab eq {{if
+                        "share"}}class="active"{{end}}><a href="/user/{{.User.Account}}">分享</a></li>
+                        <li $.Tab eq {{if
+                        "collection"}}class="active"{{end}}><a href="/user/{{.User.Account}}/collection">收藏</a></li>
+                        <li $.Tab eq {{if
+                        "follow"}}class="active"{{end}}><a href="/user/{{.User.Account}}/follow">关注</a></li>
+                        <li $.Tab eq {{if
+                        "fans"}}class="active"{{end}}><a href="/user/{{.User.Account}}/fans">粉丝</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12">
+                    <div class="ucenter-content">
+                        asdas
+
+
+                    </div>
+                </div>
+                <div class="pagination-container">
+                    {{.PageHtml}}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+{{template "widgets/footer.html" .}}
+<script src="/static/js/main.js?version={{$.Version}}"></script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport">
+
+    <title>我的图书 - {{.SITE_NAME}}</title>
+
+
+    <!--    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">-->
+    <link href="{{cdncss "
+    /static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
+    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/css/toast.css" rel="stylesheet" type="text/css">
+
+    <link href="/static/css/main.css?version={{$.Version}}" rel="stylesheet">
+    <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <!--    <script src="/static/respond.js/1.4.2/respond.min.js"></script>-->
+    <script src="{{cdnjs "
+    /static/respond.js/1.4.2/respond.min.js"}}"></script>
+</head>
+<body>
+<div class="manual-reader">
+    {{template "widgets/header.html" .}}
+    <div class="container manual-body">
+        <div class="row">
+
+            {{template "setting/menu.html" .}}
+
+            <div class="page-right">
+                <div class="m-box">
+                    <div class="box-head">
+                        <strong class="box-title">图书列表</strong>
+                        <button class="btn btn-success btn-sm pull-right" data-target="#addBookDialogModal"
+                                data-toggle="modal" type="button">添加图书
+                        </button>
+                    </div>
+                    <ul class="nav nav-tabs" style="margin-top: 15px;">
+                        <li .Private 1}}class="active" eq {{end}}{{if><a href="/book?private=1">私有图书</a></li>
+                        <li .Private 1}}class="active" ne {{end}}{{if><a href="/book?private=0">公开图书</a></li>
+                    </ul>
+                </div>
+                <div class="box-body" id="bookList">
+                    <div class="book-list">
+                        <template v-if="lists.length <= 0">
+                            <div class="text-center">暂无数据</div>
+                        </template>
+                        <template v-else>
+                            <form action="/book/setting/upload" enctype="multipart/form-data" id="uploadZip"
+                                  method="post" style="display: none;" target="notarget">
+                                <input accept="application/zip" name="zipfile" type="file">
+                                <input name="identify" type="text" value="">
+                            </form>
+                            <div class="list-item clearfix" v-for="item in lists">
+                                <div class="col-sm-2 col-xs-12" style="padding-left: 0px">
+                                    <a :class="item.order_index ? 'recommend-book' : ''"
+                                       :href="'/books/' + item.identify" data-toggle="tooltip" title="查看图书">
+                                        <img :src="item.cover" alt="" class="img-responsive border-cover-img"
+                                             onerror="this.src='/static/images/book.png'">
+                                    </a>
+                                </div>
+                                <div class="col-sm-10 col-xs-12" style="padding-right: 0px;padding-left: 0px;">
+                                    <div class="book-title">
+                                        <div class="pull-left">
+                                            <a :href="'/books/' + item.identify" data-toggle="tooltip" title="查看图书">
+                                                <template v-if="item.privately_owned == 0">
+                                                    <i aria-hidden="true" class="fa fa-unlock"></i>
+                                                </template>
+                                                <template v-else-if="item.privately_owned == 1">
+                                                    <i aria-hidden="true" class="fa fa-lock"></i>
+                                                </template>
+                                                ${item.book_name}
+                                            </a>
+                                        </div>
+
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="info">
+                                        <span data-placement="bottom" data-toggle="tooltip" title="创建者"><i
+                                                class="fa fa-user"></i> ${item.create_name}</span>
+                                        <span data-placement="bottom" data-toggle="tooltip" title="文档数量"><i
+                                                class="fa fa-pie-chart"></i> ${item.doc_count}</span>
+                                        <span data-placement="bottom" data-toggle="tooltip" title="图书角色"><i
+                                                class="fa fa-user-secret"></i> ${item.role_name}</span>
+                                        <span data-placement="bottom" data-toggle="tooltip" title="创建时间"><i
+                                                class="fa fa-clock-o"></i>
+                                            ${(new Date(item.create_time)).format("yyyy-MM-dd hh:mm:ss")}
+                                        </span>
+                                        <template v-if="item.last_modify_text !== ''">
+                                            <span data-placement="bottom" data-toggle="tooltip" title="最后编辑"><i
+                                                    class="fa fa-pencil"></i> 最后编辑: ${item.last_modify_text}</span>
+                                        </template>
+                                    </div>
+                                    <div class="desc-text">
+                                        <template v-if="item.description === ''"></template>
+                                        <template v-else="">
+                                            ${item.description}
+                                        </template>
+                                    </div>
+
+                                    <div class="btns">
+                                        <a :href="'/book/' + item.identify" class="btn btn-default btn-sm"
+                                           data-toggle="tooltip" target="_blank" title="查看图书"><i class="fa fa-eye"></i>
+                                            查看<span class="hidden-xs">图书</span></a>
+                                        <template v-if="item.role_id != 3">
+                                            <a :href="'/api/' + item.identify + '/edit'" class="btn btn-default btn-sm"
+                                               data-toggle="tooltip" title="编辑图书"><i aria-hidden="true"
+                                                                                     class="fa fa-edit"></i> 编辑<span
+                                                    class="hidden-xs">图书</span></a>
+                                        </template>
+                                        <a :href="'/book/' + item.identify + '/setting'" class="btn btn-default btn-sm"
+                                           data-toggle="tooltip" target="_blank" title="图书设置"><i class="fa fa-cogs"></i>
+                                            <span class="hidden-xs">图书</span>设置</a>
+                                        {{if lt $.Member.Role 2}}
+                                        {{/*<a :data-identify="item.identify"
+                                               class="btn btn-default btn-upload-zip  btn-sm" data-toggle="tooltip"
+                                               href="javascript:void(0);" title="支持任意zip压缩的markdown图书导入。">*/}}
+                                        {{/*<i class="fa fa-cloud-upload"></i> 导入<span class="hidden-xs">图书</span>*/}}
+                                        {{/*</a>*/}}
+                                        {{/*<a :data-identify="item.identify"
+                                               class="btn btn-default btn-pull-project-by-zip btn-sm"
+                                               data-toggle="tooltip" href="javascript:void(0);"
+                                               title="从任意源拉取zip压缩的markdown图书">*/}}
+                                        {{/*<i class="fa fa-link"></i> 拉取<span class="hidden-xs">图书</span>*/}}
+                                        {{/*</a>*/}}
+
+                                        {{end}}
+                                        <!-- Split button -->
+                                    </div>
+                                </div>
+
+                            </div>
+                        </template>
+                    </div>
+                    <template v-if="lists.length >= 0">
+                        <nav class="pagination-container">
+                            {{.PageHtml}}
+                        </nav>
+                    </template>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div aria-labelledby="addBookDialogModalLabel" class="modal fade" id="addBookDialogModal" role="dialog" tabindex="-1">
+    <div class="modal-dialog" role="document" style="width: 655px">
+        <form action="/book/create" autocomplete="off" id="addBookDialogForm" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button aria-label="Close" class="close" data-dismiss="modal" type="button"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">添加图书</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input class="form-control" id="bookName" name="book_name" placeholder="标题(不超过100字)"
+                               type="text">
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">来源名称</button>
+                        </span>
+                            <input class="form-control" id="author" name="author" placeholder="选填" type="text">
+                            <span class="input-group-btn">
+                            <button class="btn btn-default"
+                                    style="border-left: 0px;border-right: 0px;border-radius: 0px;"
+                                    type="button">来源链接</button>
+                        </span>
+                            <input class="form-control" id="author_url" name="author_url" placeholder="选填" type="text">
+                        </div>
+                    </div>
+                    <div class="form-group">
+
+                        <div class="pull-left" style="padding: 7px 5px 6px 0">
+                            {{.BaseUrl}}/books/
+                        </div>
+                        <input class="form-control pull-left" id="identify" name="identify"
+                               placeholder="图书唯一标识(不能超过50字)" style="width: 220px;vertical-align: middle" type="text">
+                        <div class="clearfix"></div>
+                        <p class="text" style="font-size: 12px;color: #999;margin-top: 6px;">
+                            图书标识只能包含字母、数字，以及“-”、"."和“_”符号，且不能是纯数字</p>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" id="description" name="description" placeholder="描述信息不超过500个字符"
+                                  style="height: 90px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-6">
+                            <label>
+                                <input checked name="privately_owned" type="radio" value="1"> 私有<span class="text">(只有参与者或使用令牌才能访问)</span>
+                            </label>
+                        </div>
+                        <div class="col-lg-6">
+                            <label>
+                                <input name="privately_owned" type="radio" value="0"> 公开<span
+                                    class="text">(任何人都可以访问)</span>
+                            </label>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="modal-footer">
+                    <span id="form-error-message"></span>
+                    <button class="btn btn-default" data-dismiss="modal" type="button">取消</button>
+                    <button class="btn btn-success" data-loading-text="保存中..." id="btnSaveDocument" type="submit">保存
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div><!--END Modal-->
+
+
+<!--避免表单跳转其它页面-->
+<iframe frameborder="0" id="notarget" name="notarget" src="" style="display: none;"></iframe>
+<script src="/static/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+<script src="{{$.StaticDomain}}/static/vuejs/vue.min.js" type="text/javascript"></script>
+<script src="{{$.StaticDomain}}/static/js/jquery.form.js" type="text/javascript"></script>
+<script src="{{$.StaticDomain}}/static/js/toast.script.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+
+        $("#addBookDialogForm").ajaxForm({
+            beforeSubmit: function () {
+                var bookName = $.trim($("#bookName").val());
+                if (bookName === "") {
+                    return showError("图书标题不能为空")
+                }
+                if (bookName.length > 100) {
+                    return showError("图书标题必须小于100字符");
+                }
+
+                var identify = $.trim($("#identify").val());
+                if (identify === "") {
+                    return showError("图书标识不能为空");
+                }
+                if (identify.length > 50) {
+                    return showError("图书标识必须小于50字符");
+                }
+                var description = $.trim($("#description").val());
+
+                if (description.length > 500) {
+                    return showError("描述信息不超过500个字符");
+                }
+                $("#btnSaveDocument").button("loading");
+                return showSuccess("");
+            },
+            success: function (res) {
+                $("#btnSaveDocument").button("reset");
+                if (res.errcode === 0) {
+                    window.app.lists.splice(0, 0, res.data);
+                    $("#addBookDialogModal").modal("hide");
+                } else {
+                    showError(res.message);
+                }
+
+            }
+        });
+
+        window.app = new Vue({
+            el: "#bookList",
+            data: {
+                lists: {
+        {.
+            Result
+        }
+    }
+    },
+        delimiters : ['${', '}'],
+            methods
+    :
+        {
+        }
+    })
+        ;
+        Vue.nextTick(function () {
+            $("[data-toggle='tooltip']").tooltip();
+        });
+
+
+        //批量上传文档图片[要放在vue执行代码的后面，否则获取不到identify的值]
+        $(".btn-upload-zip").click(function () {
+            var _this = $(this), identify = _this.attr("data-identify"), form = $("form#uploadZip");
+            form.find("[name=identify]").val(identify);
+            form.find("input[type=file]").trigger("click");
+        });
+
+        //change事件处理
+        $("#uploadZip input[type=file]").change(function () {
+            if ($(this).val() && confirm("您确定要上传 " + $(this).val() + " 吗？")) {
+                $(".btn-upload-zip").addClass("disabled");
+                $("#uploadZip").submit();
+            }
+        });
+
+        $(".btn-group-download a").click(function (e) {
+            e.preventDefault();
+            var href = $(this).attr("href");
+            $.get(href, function (res) {
+                if (res.errcode == 1) {
+                    alertTips("error", res.message, 3000);
+                } else {
+                    location.href = res.data.url;
+                }
+            });
+        });
+
+    });
+</script>
+<script src="/static/js/main.js?version={{$.Version}}" type="text/javascript"></script>
+</body>
+</html>
